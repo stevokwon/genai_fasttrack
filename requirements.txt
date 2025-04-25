@@ -1,0 +1,9 @@
+cat > ai_genai_fasttrack/requirements.txt << 'EOF'
+torch
+transformers
+diffusers
+stable-baselines3
+gym
+langchain
+openai
+EOF
