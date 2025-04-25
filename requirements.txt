@@ -1,4 +1,3 @@
-cat > ai_genai_fasttrack/requirements.txt << 'EOF'
 torch
 transformers
 diffusers
