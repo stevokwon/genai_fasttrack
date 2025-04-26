@@ -54,7 +54,7 @@ class SelfAttention(nn.Module):
         return out
 
 # Mini Transformer block
-class TransformerBlock(nn.module):
+class TransformerBlock(nn.Module):
     def __init__(self, n_embed):
         super().__init__()
         self.attn = SelfAttention(n_embed)
