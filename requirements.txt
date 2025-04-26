@@ -5,4 +5,3 @@ stable-baselines3
 gym
 langchain
 openai
-EOF
