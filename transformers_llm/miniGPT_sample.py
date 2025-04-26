@@ -24,7 +24,7 @@ def decode(l):
 data = torch.tensor(encode(text), dtype = torch.long)
 
 # Making a mini Transformer
-class MiniGPT(nn.module):
+class MiniGPT(nn.Module):
     def __init__(self, vocab_size, n_embed):
         super().__init__()
         self.embedding_table = nn.Embedding(vocab_size, n_embed)
