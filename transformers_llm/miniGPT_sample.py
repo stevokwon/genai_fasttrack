@@ -23,3 +23,21 @@ def decode(l):
 # Training Data
 data = torch.tensor(encode(text), dtype = torch.long)
 
+# Making a mini Transformer
+class MiniGPT(nn.module):
+    def __init__(self, vocab_size, n_embed):
+        super().__init__()
+        self.embedding_table = nn.Embedding(vocab_size, n_embed)
+        self.lm_head = nn.Linear(n_embed, vocab_size)
+
+    def forward(self, index):
+        # index -> (Batch, Time)
+        embed = self.embedding_table(index) # (Batch, Time, n_embed)
+        logits = self.lm_head(embed) # (Batch, Time, vocab_size)
+        return logits
+
+# Model Hyperparameter
+n_embed = 32 # Embedding Size
+
+model = MiniGPT(vocab_size, n_embed)
+optimizer = torch.optim.AdamW(model.parameters(), lr = 1e-2)
