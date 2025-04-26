@@ -52,11 +52,11 @@ class TransformerBlock(nn.Module):
         self.ln2 = nn.LayerNorm(n_embed)
 
     def forward(self, x):
-        attn_out = self.attn(self.ln1(x)) # Preventing overwriting x
-        x += attn_out # Residual connection after attention
+        attn_out = self.attn(self.ln1(x)) # Self-attention output
+        x = x + attn_out # Out-of-place residual connection
 
-        mlp_out = self.mlp(self.ln2(x))
-        x += mlp_out # Residual connection after MLP
+        mlp_out = self.mlp(self.ln2(x)) # MLP output
+        x = x + mlp_out # Out-of-place residual connection
         return x
 
 # Making a mini Transformer
