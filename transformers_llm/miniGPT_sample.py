@@ -49,9 +49,9 @@ block_size = 4 # Context Length
 for step in range(300):
     # get random batch
     ix = torch.randint(len(data) - block_size, (batch_size,))
-    x = torch.stack([data[i:i+block_size]] for i in ix)
-    y = torch.stack([data[i+1:i+block_size]] for i in ix)
-
+    x = torch.stack([data[i:i+block_size] for i in ix])
+    y = torch.stack([data[i+1:i+block_size+1] for i in ix])
+    
     # Forward
     logits = model(x)
     logits = logits.view(-1, vocab_size)
