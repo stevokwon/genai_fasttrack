@@ -25,50 +25,38 @@ data = torch.tensor(encode(text), dtype = torch.long)
 
 # Create a Tiny Self-Attention Head
 class SelfAttention(nn.Module):
-    def __init__(self, n_embed):
+    def __init__(self, n_embed, n_heads = 4):
         super().__init__()
-        self.key = nn.Linear(n_embed, n_embed, bias = False)
-        self.query = nn.Linear(n_embed, n_embed, bias = False)
-        self.value = nn.Linear(n_embed, n_embed, bias = False)
-        self.register_buffer('tril', torch.tril(torch.ones(1024, 1024)))
+        self.attn = nn.MultiheadAttention(embed_dim = n_embed, num_heads = n_heads, batch_first = True)
     
     def forward(self, x):
-        B, T, C = x.shape # Batch, Time, Channels
+        # Causal mask: prevent attending to future tokens
+        T = x.size(1)
+        causal_mask = torch.triu(torch.ones(T, T), diagonal=1).bool().to(x.device)
 
-        k = self.key(x) # (B, T, C)
-        q = self.query(x) # (B, T, C)
-
-        # Compute attention scores -> 'affinities'
-        wei = q @ k.transpose(-2, -1) * C**0.5 # (B, T, T)
-
-        # Mask out future tokens (causal attention)
-        wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf'))
-
-        # Softmax to get attention weight
-        wei = f.softmax(wei, dim = -1) # (B, T, T)
-
-        # Weighted aggregation
-        v = self.value(x)
-        out = wei @ v
-
+        out, _ = self.attn(x, x, x, attn_mask=causal_mask)
         return out
 
 # Mini Transformer block
 class TransformerBlock(nn.Module):
-    def __init__(self, n_embed):
+    def __init__(self, n_embed, dropout = 0.1):
         super().__init__()
-        self.attn = SelfAttention(n_embed)
+        self.attn = SelfAttention(n_embed, n_heads = 4)
         self.ln1 = nn.LayerNorm(n_embed)
         self.mlp = nn.Sequential(
             nn.Linear(n_embed, 4 * n_embed),
             nn.ReLU(),
-            nn.Linear(4 * n_embed, n_embed)
+            nn.Linear(4 * n_embed, n_embed),
+            nn.Dropout(dropout)
         )
         self.ln2 = nn.LayerNorm(n_embed)
 
     def forward(self, x):
-        x += self.attn(self.ln1(x)) # Residual connection after attention
-        x += self.mlp(self.ln2(x)) # Residual connection after MLP
+        attn_out = self.attn(self.ln1(x)) # Preventing overwriting x
+        x += attn_out # Residual connection after attention
+
+        mlp_out = self.mlp(self.ln2(x))
+        x += mlp_out # Residual connection after MLP
         return x
 
 # Making a mini Transformer
@@ -89,13 +77,13 @@ class MiniGPT(nn.Module):
 n_embed = 32 # Embedding Size
 
 model = MiniGPT(vocab_size, n_embed)
-optimizer = torch.optim.AdamW(model.parameters(), lr = 1e-2)
+optimizer = torch.optim.AdamW(model.parameters(), lr = 1e-3)
 
 # Training Loop
 batch_size = 4
 block_size = 4 # Context Length
 
-for step in range(300):
+for step in range(500):
     # get random batch
     ix = torch.randint(len(data) - block_size, (batch_size,))
     x = torch.stack([data[i:i+block_size] for i in ix])
