@@ -23,17 +23,66 @@ def decode(l):
 # Training Data
 data = torch.tensor(encode(text), dtype = torch.long)
 
+# Create a Tiny Self-Attention Head
+class SelfAttention(nn.Module):
+    def __init__(self, n_embed):
+        super().__init__()
+        self.key = nn.Linear(n_embed, n_embed, bias = False)
+        self.query = nn.Linear(n_embed, n_embed, bias = False)
+        self.value = nn.Linear(n_embed, n_embed, bias = False)
+        self.register_buffer('tril', torch.tril(torch.ones(1024, 1024)))
+    
+    def forward(self, x):
+        B, T, C = x.shape # Batch, Time, Channels
+
+        k = self.key(x) # (B, T, C)
+        q = self.query(x) # (B, T, C)
+
+        # Compute attention scores -> 'affinities'
+        wei = q @ k.transpose(-2, -1) * C**0.5 # (B, T, T)
+
+        # Mask out future tokens (causal attention)
+        wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf'))
+
+        # Softmax to get attention weight
+        wei = f.softmax(wei, dim = -1) # (B, T, T)
+
+        # Weighted aggregation
+        v = self.value(x)
+        out = wei @ v
+
+        return out
+
+# Mini Transformer block
+class TransformerBlock(nn.module):
+    def __init__(self, n_embed):
+        super().__init__()
+        self.attn = SelfAttention(n_embed)
+        self.ln1 = nn.LayerNorm(n_embed)
+        self.mlp = nn.Sequential(
+            nn.Linear(n_embed, 4 * n_embed),
+            nn.ReLU(),
+            nn.Linear(4 * n_embed, n_embed)
+        )
+        self.ln2 = nn.LayerNorm(n_embed)
+
+    def forward(self, x):
+        x += self.attn(self.ln1(x)) # Residual connection after attention
+        x += self.mlp(self.ln2(x)) # Residual connection after MLP
+        return x
+
 # Making a mini Transformer
 class MiniGPT(nn.Module):
     def __init__(self, vocab_size, n_embed):
         super().__init__()
         self.embedding_table = nn.Embedding(vocab_size, n_embed)
+        self.transformer = TransformerBlock(n_embed)
         self.lm_head = nn.Linear(n_embed, vocab_size)
 
     def forward(self, index):
-        # index -> (Batch, Time)
         embed = self.embedding_table(index) # (Batch, Time, n_embed)
-        logits = self.lm_head(embed) # (Batch, Time, vocab_size)
+        out = self.transformer(embed) # (Batch, Time, n_embed)
+        logits = self.lm_head(out) # (Batch, Time, vocab_size)
         return logits
 
 # Model Hyperparameter
