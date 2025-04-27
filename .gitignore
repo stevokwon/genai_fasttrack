@@ -172,3 +172,21 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Ignore all downloaded datasets
+genai_rl_agents/*.gz
+genai_rl_agents/*.idx*
+
+# Ignore outputs
+output/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore environment/config files (optional)
+.env
+*.env
+
+# Ignore VSCode settings (optional)
+.vscode/
