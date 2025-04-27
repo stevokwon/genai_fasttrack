@@ -3,6 +3,24 @@ import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, transforms
 import torchvision.utils as vutils
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+# Device Setup
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') 
+print(f'Using device : {device}')
+
+# Hyperparameters
+batch_size = 64
+lrG = 0.0002
+lrD = 0.0001 # Slightly slower D learning rate
+beta1 = 0.5
+nz = 100 # Size of the latent z vector (input noise)
+epochs = 10
+
+# Create output folder
+os.makedirs('output', exist_ok = True)
 
 # Load and prep real data
 transform = transforms.Compose([
@@ -13,13 +31,6 @@ transform = transforms.Compose([
 
 dataset = datasets.MNIST(root='./data', train = True, download = True, transform = transform)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size = 64, shuffle = True)
-
-# Hyperparameters
-batch_size = 64
-lr = 0.0002
-beta1 = 0.5
-nz = 100 # Size of the latent z vector (input noise)
-epochs = 10
 
 # Generator
 class Generator(nn.Module):
@@ -66,52 +77,80 @@ class Discriminator(nn.Module):
         out = out.mean([2, 3]) # Average over 4x4 spatial map
         return out.view(-1)    # Flatten to (batch_size) 
 
-# Initialise models and optimizers
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # make sure your device has GPU
-# mine doesn't so 
+
 netG = Generator().to(device)
 netD = Discriminator().to(device)
 
-optimizerG = optim.Adam(netG.parameters(), lr = lr, betas = (beta1, 0.999))
-optimizerD = optim.Adam(netD.parameters(), lr = lr, betas = (beta1, 0.999))
-
-# Loss function (Binary Cross Entropy)
+# Loss and Optimizers
 criterion = nn.BCELoss()
+optimizerG = optim.Adam(netG.parameters(), lr = lrG, betas = (beta1, 0.999))
+optimizerD = optim.Adam(netD.parameters(), lr = lrD, betas = (beta1, 0.999))
+
+# Fixed noise for consistent visualisation
+fixed_noise = torch.randn(64, nz, 1, 1, device = device)
+
+# Helper to visualise generated images
+def show_generated_images(generator, epoch):
+    generator.eval()
+    with torch.no_grad():
+        fake = generator(fixed_noise).detach().cpu()
+    grid = np.transpose(vutils.make_grid(fake, padding = 2, normalize = True), (1, 2, 0))
+    plt.figure(figsize = (6, 6))
+    plt.axis('off')
+    plt.title(f'Generated Images at Epoch {epoch}')
+    plt.imshow(grid)
+    plt.savefig(f'output/fake_samples_epoch_{epoch}.png')
+    plt.close()
+    generator.train()
 
 # Training loop
+print(f'Starting Training Loop....')
 for epoch in range(epochs):
     for i, (data, _) in enumerate(dataloader, 0):
-        # Train Discriminator
+        
+        ############################
+        # (1) Update D network
+        ###########################
         netD.zero_grad()
         real_data = data.to(device)
-        batch_size = real_data.size(0)
-        label = torch.full((batch_size,), 1.0, device = device)
+        batch_size_curr = real_data.size(0) # use dynamic batch size
 
+        # Add tiny noise to real data
+        real_data += 0.05 * torch.randn_like(real_data)
+
+        # Real label smoothing (0.8 to 1.0)
+        real_label = torch.empty(batch_size_curr, device=device).uniform_(0.8, 1.0)
         output = netD(real_data)
-        errD_real = criterion(output.view(-1), label)
+        errD_real = criterion(output, real_label)
         errD_real.backward()
 
-        noise = torch.randn(batch_size, nz, 1, 1, device = device)
-        fake_data = netG(noise)
-        label.fill_(0.0)
-        output = netD(fake_data.detach())
-        errD_fake = criterion(output.view(-1), label)
+        # Generate fake data
+        noise = torch.randn(batch_size_curr, nz, 1, 1, device=device)
+        fake = netG(noise)
+
+        fake_label = torch.zeros(batch_size_curr, device=device)
+        output = netD(fake.detach())
+        errD_fake = criterion(output, fake_label)
         errD_fake.backward()
 
         errD = errD_real + errD_fake
         optimizerD.step()
 
-        # Train Generator
+        ############################
+        # (2) Update G network
+        ###########################
         netG.zero_grad()
-        label.fill_(1.0)
-        output = netD(fake_data)
-        errG = criterion(output.view(-1), label)
+        label_for_generator = torch.ones(batch_size_curr, device=device)  # generator tries to fool D
+        output = netD(fake)
+        errG = criterion(output, label_for_generator)
         errG.backward()
         optimizerG.step()
 
-        if i % 50 == 0:
-            print(f'[{epoch} / {epochs}][{i} / {len(dataloader)}] Loss_D : {errD.item()} Loss_G : {errG.item()}')
+        # Print every 100 batches
+        if i % 100 == 0:
+            print(f"[{epoch} / {epochs}][{i} / {len(dataloader)}] Loss_D: {errD.item():.4f} Loss_G: {errG.item():.4f}")
 
-# Save generated images after each epoch
-vutils.save_image(fake_data.data, f'output/fake_samples_epoch_{epoch}.png', normalize = True)
+    # Save samples after each epoch
+    show_generated_images(netG, epoch)
 
+print("Training Complete.")
