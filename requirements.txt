@@ -5,3 +5,4 @@ stable-baselines3
 gym
 langchain
 openai
+torchvision
