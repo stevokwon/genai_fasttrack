@@ -50,3 +50,29 @@ def fraud_score(transaction : Dict) -> Dict :
         'recommended_action' : action,
         'reasons' : reasons
     }
+
+# Step 2 : Fraud Scoring Tool Wrapper
+def fraud_tool_fn(description : str) -> str :
+    # naive parser
+    amount = int(re.search(r"\$(\d+)", description).group(1))
+    location = re.search(r"in (\w+)", description).group(1)
+    home_location = re.search(r"user.*?in (\w+)", description).group(1)
+    device = "new" if "new" in description else "known"
+    time = re.search(r"at (\d+am|\d+pm)", description).group(1)
+
+    transaction = {
+        'amount' : amount,
+        'location' : location,
+        'home_location' : home_location,
+        'device' : device,
+        'time' : time
+    }
+
+    result = fraud_score(transaction)
+    return f'Score : {result['score']}/100 \nRisk Level : {result['risk_level']} \nAction : {result['recommended_action']}\nReasons : {result['reasons']}'
+
+fraud_tool = Tool(
+    name="FraudScoringTool",
+    func=fraud_tool_fn,
+    description="Evaluates transaction descriptions and assigns fraud scores."
+)
