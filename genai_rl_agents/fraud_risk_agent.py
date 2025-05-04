@@ -76,3 +76,37 @@ fraud_tool = Tool(
     func=fraud_tool_fn,
     description="Evaluates transaction descriptions and assigns fraud scores."
 )
+
+# Step 3 : Simulated LLM Responses
+def simulate_llm(description) :
+    return [
+        "I should use the FraudScoringTool to evaluate this transaction.",
+        fraud_tool_fn(description),
+        "Based on the score and risk level, I have provided the best action."
+    ]
+
+# Step 4 : Main Agent Runner
+def run_agent():
+    print("\n🔒 Fraud Risk Agent (LangChain-based)\nType 'exit' to quit.\n")
+    while True:
+        user_input = input('Describe the trasnaction:\n> ')
+        if user_input.lower() == 'exit':
+            break
+
+        llm = FakeListLLM(responses = simulate_llm(user_input))
+        agent = initialize_agent(
+            tools = [fraud_tool],
+            llm = llm,
+            agent = AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+            verbose = True
+        )
+
+        try :
+            output = agent.run(user_input)
+            print(f'\n✅ Agent Decision:\n{output}\n'),
+        except Exception as e :
+            print(f"❌ Error: {e}\n")
+
+if __name__ == '__main__':
+    run_agent()
+
