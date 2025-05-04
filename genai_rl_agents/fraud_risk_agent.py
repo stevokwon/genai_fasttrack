@@ -1,6 +1,6 @@
 from langchain.agents import initialize_agent, Tool
 from langchain.agents.agent_types import AgentType
-from langchain.llms.fake import FakeListLLM
+from langchain_community.llms.fake import FakeListLLM
 from langchain.prompts import PromptTemplate
 from typing import Dict
 import re
