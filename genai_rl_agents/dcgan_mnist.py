@@ -60,10 +60,12 @@ class Discriminator(nn.Module):
         self.main = nn.Sequential(
             nn.Conv2d(1, 64, 4, 2, 1, bias = False),
             nn.LeakyReLU(0.2, inplace = True),
+            nn.Dropout(0.3), 
             
             nn.Conv2d(64, 128, 4, 2, 1, bias = False),
             nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2, inplace = True),
+            nn.Dropout(0.3),
             
             nn.Conv2d(128, 256, 4, 2, 1, bias = False),
             nn.BatchNorm2d(256),
@@ -90,16 +92,16 @@ optimizerD = optim.Adam(netD.parameters(), lr = lrD, betas = (beta1, 0.999))
 fixed_noise = torch.randn(64, nz, 1, 1, device = device)
 
 # Helper to visualise generated images
-def show_generated_images(generator, epoch):
+def show_generated_images(generator, tag):
     generator.eval()
     with torch.no_grad():
         fake = generator(fixed_noise).detach().cpu()
     grid = np.transpose(vutils.make_grid(fake, padding = 2, normalize = True), (1, 2, 0))
     plt.figure(figsize = (6, 6))
     plt.axis('off')
-    plt.title(f'Generated Images at Epoch {epoch}')
+    plt.title(f'Generated Images: {tag}')
     plt.imshow(grid)
-    plt.savefig(f'output/fake_samples_epoch_{epoch}.png')
+    plt.savefig(f'output/fake_samples_{tag}.png')
     plt.close()
     generator.train()
 
@@ -140,7 +142,7 @@ for epoch in range(epochs):
         # (2) Update G network
         ###########################
         netG.zero_grad()
-        label_for_generator = torch.ones(batch_size_curr, device=device)  # generator tries to fool D
+        label_for_generator = torch.ones(batch_size_curr, device=device).uniform_(0.8, 1.0)  # generator tries to fool D
         output = netD(fake)
         errG = criterion(output, label_for_generator)
         errG.backward()
@@ -149,6 +151,10 @@ for epoch in range(epochs):
         # Print every 100 batches
         if i % 100 == 0:
             print(f"[{epoch} / {epochs}][{i} / {len(dataloader)}] Loss_D: {errD.item():.4f} Loss_G: {errG.item():.4f}")
+
+        # Generate images after every 200 batches
+        if i % 200 == 0:
+            show_generated_images(netG, f'epoch{epoch}_step{i}')
 
     # Save samples after each epoch
     show_generated_images(netG, epoch)
