@@ -106,29 +106,20 @@ fraud_tool = Tool(
     description="Evaluates transaction descriptions and assigns fraud scores."
 )
 
-# Step 3 : Main Agent Runner
-def run_agent():
-    print("\n🔒 Fraud Risk Agent (LangChain-based)\nType 'exit' to quit.\n")
-    while True:
-        user_input = input('Describe the trasnaction:\n> ')
-        if user_input.lower() == 'exit':
-            break
-
-        llm = ChatOpenAI(temperature = 0, model = 'gpt-3.5-turbo')
-        agent = initialize_agent(
+# Step 4 : Main Agent Runner
+def run_fraud_risk_agent(user_input : str):
+    llm = ChatOpenAI(temperature = 0, model = 'gpt-3.5-turbo')
+    agent = initialize_agent(
             tools = [fraud_tool],
             llm = llm,
             agent = AgentType.ZERO_SHOT_REACT_DESCRIPTION,
             agent_kwargs = {'prompt' : fraud_prompt},
             verbose = True
-        )
+    )
+    try :
+        output = agent.invoke({'input' : user_input})
+        return output
+    except Exception as e :
+        print(f"❌ Error: {e}\n")
 
-        try :
-            output = agent.run(user_input)
-            print(f'\n✅ Agent Decision:\n{output}\n'),
-        except Exception as e :
-            print(f"❌ Error: {e}\n")
-
-if __name__ == '__main__':
-    run_agent()
 
