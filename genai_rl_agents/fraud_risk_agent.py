@@ -4,33 +4,27 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from typing import Dict
 import re
+import json
+import os
 
-# Step 1 : Fraud Rules Engine
+# Step 1 : Load External Scoring Rules
+RULES_PATH = os.path.join(os.path.dirname(__file__), 'fraud_rules.json')
+with open(RULES_PATH, 'r') as f:
+    FRAUD_RULES = json.load(f)['rules']
+
+# Step 2 : Fraud Rules Engine
 def fraud_score(transaction : Dict) -> Dict :
     score = 0
     reasons = []
 
-    amount = transaction.get('amount', 0)
-    location = transaction.get('location')
-    home_location = transaction.get('home_location')
-    device = transaction.get('device', "").lower()
-    time = transaction.get('time', '')
-
-    if amount > 1000 :
-        score += 30 
-        reasons.append('High transaction amount')
-    
-    if location and location.lower() and home_location != home_location.lower():
-        score += 25
-        reasons.append('Location mismatch')
-
-    if 'new' in device:
-        score += 20
-        reasons.append('Unrecognized device')
-
-    if time in ['1am', '2am', '3am', '4am'] :
-        score += 15
-        reasons.append('Suspicious time of transaction')
+    for rule in FRAUD_RULES:
+        try:
+            condition = rule['condition']
+            if eval(condition, {}, transaction):
+                score += rule['score']
+                reasons.append(rule['reason'])
+        except Exception as e:
+            reasons.append(f"Error in the rule '{condition}' : {e}")
 
     risk = 'Low'
     if score >= 70:
@@ -51,7 +45,7 @@ def fraud_score(transaction : Dict) -> Dict :
         'reasons' : reasons
     }
 
-# Step 2 : Fraud Scoring Tool Wrapper
+# Step 3 : Fraud Scoring Tool Wrapper
 def fraud_tool_fn(description : str) -> str :
     # naive parser
     amount_match = re.search(r"\$(\d+)", description)
