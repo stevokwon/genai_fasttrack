@@ -7,3 +7,5 @@ langchain
 openai
 torchvision
 langchain
+langchain-openai
+openai
