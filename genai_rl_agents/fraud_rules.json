@@ -1,0 +1,24 @@
+{
+    "rules": [
+      {
+        "condition": "amount > 1000",
+        "score": 30,
+        "reason": "High transaction amount"
+      },
+      {
+        "condition": "location.lower() != home_location.lower()",
+        "score": 25,
+        "reason": "Location mismatch"
+      },
+      {
+        "condition": "'new' in device",
+        "score": 20,
+        "reason": "Unrecognized device"
+      },
+      {
+        "condition": "time in ['1am', '2am', '3am', '4am']",
+        "score": 15,
+        "reason": "Suspicious time of transaction"
+      }
+    ]
+  }
