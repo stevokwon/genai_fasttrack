@@ -106,20 +106,56 @@ fraud_tool = Tool(
     description="Evaluates transaction descriptions and assigns fraud scores."
 )
 
-# Step 5 : Main Agent Runner
-def run_fraud_risk_agent(user_input : str):
-    llm = ChatOpenAI(temperature = 0, model = 'gpt-3.5-turbo')
-    agent = initialize_agent(
-            tools = [fraud_tool],
-            llm = llm,
-            agent = AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-            agent_kwargs = {'prompt' : fraud_prompt},
-            verbose = True
-    )
-    try :
-        output = agent.invoke({'input' : user_input})
-        return output
-    except Exception as e :
-        print(f"❌ Error: {e}\n")
+# Step 5: Run Fraud Risk Agent
+def run_fraud_risk_agent(description: str) -> Dict:
+    raw_result = fraud_tool_fn(description)
 
+    try:
+        score_part = raw_result.split("Score: ")[1].split("/")[0]
+        score = int(score_part)
+        risk = raw_result.split("Risk Level: ")[1].split("\n")[0]
+        action = raw_result.split("Action: ")[1].split("\n")[0]
+        reasons_section = raw_result.split("Reasons: ")[1].strip()
+        reasons = [r.strip() for r in reasons_section.split(",") if r.strip()]
+    except (IndexError, ValueError) as e:
+        # In case the string parsing fails
+        return {
+            "score": 0,
+            "risk_level": "Unknown",
+            "recommended_action": "Unknown",
+            "reasons": ["Failed to extract result details."],
+            "raw_output": raw_result  # Optional: useful for debugging
+        }
 
+    return {
+        "score": score,
+        "risk_level": risk,
+        "recommended_action": action,
+        "reasons": reasons,
+        "raw_output": raw_result
+    }
+
+# Step 6: Main Agent Runner
+def run_agent():
+    print("\n🔒 Fraud Risk Agent (LangChain-based)\nType 'exit' to quit.\n")
+    while True:
+        user_input = input("Describe the transaction:\n> ")
+        if user_input.lower() == 'exit':
+            break
+
+        llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
+        agent = initialize_agent(
+            tools=[fraud_tool],
+            llm=llm,
+            agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+            agent_kwargs={"prompt": fraud_prompt},
+            verbose=True
+        )
+        try:
+            output = agent.invoke({"input": user_input})
+            print(f"\n✅ Agent Decision:\n{output}\n")
+        except Exception as e:
+            print(f"❌ Error: {e}\n")
+
+if __name__ == "__main__":
+    run_agent()
