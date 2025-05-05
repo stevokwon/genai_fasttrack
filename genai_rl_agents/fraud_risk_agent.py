@@ -76,7 +76,7 @@ fraud_tool = Tool(
     description="Evaluates transaction descriptions and assigns fraud scores."
 )
 
-# --- Step 3: Prompt Template ---
+# --- Step 4: Prompt Template ---
 fraud_prompt = PromptTemplate.from_template("""
 You are a fraud detection assistant working for a financial institution.
 
@@ -106,7 +106,7 @@ fraud_tool = Tool(
     description="Evaluates transaction descriptions and assigns fraud scores."
 )
 
-# Step 4 : Main Agent Runner
+# Step 5 : Main Agent Runner
 def run_fraud_risk_agent(user_input : str):
     llm = ChatOpenAI(temperature = 0, model = 'gpt-3.5-turbo')
     agent = initialize_agent(
