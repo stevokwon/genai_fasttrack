@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import csv
-from fraud_risk_agent import run_fraud_risk_agent
+from fraud_risk_agent import run_fraud_risk_agent, fraud_tool_fn
 
 # Initialize an empty list to score transaction results
 if "transaction_history" not in st.session_state:
@@ -12,9 +12,10 @@ if "transaction_history" not in st.session_state:
 def plot_transaction_history():
     if st.session_state.transaction_history:
         df = pd.DataFrame(st.session_state.transaction_history)
+        df["Transaction"] = df["Transaction"].apply(lambda x : x[:25] + '...' if len(x) > 25 else x)
         fig, ax = plt.subplots()
         ax.plot(df["Transaction"], df["Fraud Score"], marker='o')
-        ax.set_xlabel("Transaction")
+        ax.set_xlabel("Transaction Summary")
         ax.set_ylabel("Fraud Score")
         ax.set_title("Fraud Score Over Time")
         st.pyplot(fig)
@@ -32,7 +33,7 @@ def update_transaction_history(transaction, score, risk, action):
 
 # Feature 3 : Show Deatiled Breakdown of Reasons
 def display_detailed_breakdown(description: str):
-    result = run_fraud_risk_agent(description)  # Run the agent on the transaction description
+    result = fraud_tool_fn(description)  # Run the agent on the transaction description
     breakdown = f"Transaction Details:\n{description}\n\n"
     breakdown += f"Score: {result['score']}/100\nRisk Level: {result['risk_level']}\n"
     breakdown += f"Action: {result['recommended_action']}\n"
@@ -47,7 +48,12 @@ def save_results_to_csv(results):
         writer = csv.writer(file)
         writer.writerow(['Transaction', 'Fraud Score', 'Risk Level', 'Action'])
         for result in results:
-            writer.writerow([result['transaction'], result['score'], result['risk'], result['action']])
+            writer.writerow([
+                result.get("Transaction", ""), 
+                result.get("Fraud Score", ""), 
+                result.get("Risk Level", ""), 
+                result.get("Action", "")
+            ])
 
 # Step 1 : Set up the Streamlit UI
 def run_streamlit_ui():
@@ -67,7 +73,7 @@ def run_streamlit_ui():
 
     if st.button("Evaluate"):
         if user_input:
-            output = run_fraud_risk_agent(user_input)  # Run the agent on user input
+            output = fraud_tool_fn(user_input)  # Run the agent on user input
             st.markdown("### ✅ Agent Decision")
             st.write(f"**Fraud Score:** {output['score']}/100")
             st.write(f"**Risk Level:** {output['risk_level']}")
@@ -80,6 +86,13 @@ def run_streamlit_ui():
 
             # Update transaction history
             update_transaction_history(user_input, output['score'], output['risk_level'], output['recommended_action'])
+
+            # ✅ Success message
+            st.success("Transaction evaluated and added to history")
+
+            # ✅ Clear input
+            st.session_state['user_input'] = ""
+
         else:
             st.warning("Please enter a transaction description.")
 

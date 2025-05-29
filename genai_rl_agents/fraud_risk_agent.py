@@ -68,7 +68,13 @@ def fraud_tool_fn(description : str) -> str :
     }
 
     result = fraud_score(transaction)
-    return f'Score : {result['score']}/100 \nRisk Level : {result['risk_level']} \nAction : {result['recommended_action']}\nReasons : {result['reasons']}'
+    return {
+        "score": result['score'],
+        "risk_level": result['risk_level'],
+        "recommended_action": result['recommended_action'],
+        "reasons": result['reasons'],
+        "raw_output": f"Score: {result['score']}/100\nRisk Level: {result['risk_level']}\nAction: {result['recommended_action']}\nReasons: {', '.join(result['reasons'])}"
+    }
 
 fraud_tool = Tool(
     name="FraudScoringTool",
