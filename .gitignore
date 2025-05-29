@@ -190,3 +190,6 @@ __pycache__/
 
 # Ignore VSCode settings (optional)
 .vscode/
+
+# Ignore analysis csv files from fraud_risk_streamlit
+genai_rl_agents/analysis/*

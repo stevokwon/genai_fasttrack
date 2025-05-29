@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import csv
-from fraud_risk_agent import run_fraud_risk_agent, fraud_tool_fn
+import os
+from datetime import datetime
+from fraud_risk_agent import fraud_tool_fn
 
 # Initialize an empty list to score transaction results
 if "transaction_history" not in st.session_state:
@@ -44,7 +46,13 @@ def display_detailed_breakdown(description: str):
 
 # Feature 4 : Save and Download Results as CSV
 def save_results_to_csv(results):
-    with open('fraud_detection_results.csv', 'w') as file:
+    output_dir = 'genai_rl_agents/analysis'
+    os.makedirs(output_dir, exist_ok = True)
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    filename = f"fraud_detection_results_{today_str}.csv"
+    filepath = os.path.join(output_dir, filename)
+
+    with open(filepath, 'w') as file:
         writer = csv.writer(file)
         writer.writerow(['Transaction', 'Fraud Score', 'Risk Level', 'Action'])
         for result in results:
@@ -54,6 +62,8 @@ def save_results_to_csv(results):
                 result.get("Risk Level", ""), 
                 result.get("Action", "")
             ])
+    
+    st.success(f"✅ Results saved to: `{filepath}`")
 
 # Step 1 : Set up the Streamlit UI
 def run_streamlit_ui():
