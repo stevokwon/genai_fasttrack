@@ -193,3 +193,4 @@ __pycache__/
 
 # Ignore analysis csv files from fraud_risk_streamlit
 genai_rl_agents/analysis/*
+data/MNIST/raw/*
