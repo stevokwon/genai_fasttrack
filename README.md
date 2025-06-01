@@ -6,25 +6,35 @@ Welcome to **GenAI FastTrack**, a portfolio-ready showcase of Generative AI appl
 
 ## 📁 Project Structure
 
+
 ```bash
 genai_fasttrack/
+├── assets/
+│   ├── default_page_UI.png
+│   ├── detailed_explanation.png
+│   ├── evaluation.png
+│   ├── show_fraud_history.png
+│   ├── show_transaction_history.png
+├── data/
+│   └── MNIST/
+│       └── raw/
 ├── genai_rl_agents/
+│   ├── __pycache__/
 │   ├── dcgan_mnist.py
 │   ├── fraud_risk_agent.py
 │   ├── fraud_risk_streamlit.py
 │   ├── fraud_rules.json
+│   └── output/
+│       ├── fake_samples_epoch0_step200.png
+│       ├── fake_samples_epoch0_step400.png
+│       ├── fake_samples_epoch13_step400.png
 ├── transformers_llm/
 │   ├── huggingface_inference.py
-│   ├── miniGPT_sample.py
-├── assets/
-│   ├── generated_mnist_sample.png
-│   ├── streamlit_home.png
-│   ├── streamlit_result.png
-├── data/
-├── output/
-├── requirements.txt
-└── README.md
-```
+│   └── miniGPT_sample.py
+├── .gitignore
+├── LICENSE
+├── README.md
+└── requirements.txt
 ---
 
 ---
