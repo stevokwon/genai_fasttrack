@@ -37,7 +37,7 @@ Train a Deep Convolutional GAN to generate handwritten digits from the MNIST dat
 - Custom training loop with `torchvision.utils.make_grid`
 - Model output saved under `output/` after each epoch
 
-### 📸 Sample Output (Epoch 10)
+### 📸 Sample Output (Epoch 13)
 
 ![Generated Digits](genai_rl_agents/output/fake_samples_epoch13_step400.png)
 > *Digits generated after 13 epochs of DCGAN training using PyTorch*
