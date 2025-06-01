@@ -64,7 +64,7 @@ Interactive web interface for entering or uploading transaction data and reviewi
 
 This is the default landing page for users to begin manual input or upload a transaction file.
 
-![Streamlit Home](assets/default_page_UI.PNG)
+![Streamlit Home](assets/default_page_UI.png)
 
 ---
 
@@ -78,7 +78,7 @@ Once evaluated, the app displays a summary of:
 - Action Recommendation (Approve, Investigate, Block)
 - Interpretable Reasons
 
-![Streamlit Result](assets/evaluation.PNG)
+![Streamlit Result](assets/evaluation.png)
 
 ---
 
@@ -86,7 +86,7 @@ Once evaluated, the app displays a summary of:
 
 The app plots a real-time graph of fraud scores from past evaluations for comparison and trend monitoring. Each transaction is labeled and the score is plotted in temporal order.
 
-![Fraud Score History Visualisation](assets/show_fraud_history.PNG)
+![Fraud Score History Visualisation](assets/show_fraud_history.png)
 
 ---
 
@@ -99,7 +99,7 @@ After each transaction is submitted, it is added to an interactive table showing
 
 This feature is useful for auditors, model debugging, or dashboard integration.
 
-![Transaction History](assets/show_transaction_history.PNG)
+![Transaction History](assets/show_transaction_history.png)
 
 ---
 
@@ -114,7 +114,7 @@ Example reasons may include:
 - Unusual transaction hour
 - High-risk country
 
-![Detailed Breakdown](assets/detailed_explanation.PNG)
+![Detailed Breakdown](assets/detailed_explanation.png)
 
 ---
 
