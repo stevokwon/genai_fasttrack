@@ -35,7 +35,7 @@ genai_fasttrack/
 ├── LICENSE
 ├── README.md
 └── requirements.txt
----
+```
 
 ---
 
