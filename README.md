@@ -1,8 +1,31 @@
 # 💡 GenAI FastTrack Portfolio Project
 
-Welcome to **GenAI FastTrack**, a portfolio-ready showcase of Generative AI applications across both vision (DCGAN) and reasoning systems (LLM-enhanced fraud detection). This project demonstrates your ability to work with rule-based engines, model inference, streamlit UIs, and real-world data scenarios.
+Welcome to **GenAI FastTrack**, a portfolio-ready showcase of Generative AI applications across both vision (DCGAN) and reasoning systems (LLM-enhanced fraud detection).
+
+This project was inspired by a conversation I had during a recent industry forum with a member of a **Fraud Detection & Risk Analytics team** in Shinhan Bank. They emphasized that the **future of auditing, compliance, and financial transaction monitoring** lies not just in traditional models — but in explainable AI systems that can **track user behavior, detect anomalies, and assist analysts with decision-ready insights**.
+
+As someone deeply interested in the **application of Data Science in FinTech**, I built this project to explore how **hybrid systems — combining rule-based engines, LLMs, and visualization tools — can support real-world tasks** such as:
+
+- 🚨 Identifying potentially fraudulent transactions
+- 🧾 Explaining why an action is flagged, for audit compliance
+- 📊 Monitoring transaction score trends and histories
 
 ---
+
+Rather than focusing solely on algorithmic accuracy, this system is designed to be **interpretable, interactive, and actionable** — reflecting the kind of tooling actual **risk and fraud analysts at companies like American Express or PayPal** rely on. With this in mind, I aimed to build my knowledge in the application of GenAI in both **visual(DCGAN) and textual(LLM) manner** with the following GenAI agents with some **interactive features from the scratch** to pursue my interest.
+
+### ✨ Future directions I plan to explore:
+
+- Integrating this engine with **FastAPI + AWS Lambda** for real-time scoring APIs
+- Enhancing the scoring logic using **retrieval-augmented generation (RAG)** with domain-specific knowledge
+- Deploying a dashboard for **batch processing + alerting** of suspicious clusters in transactions
+
+---
+
+This portfolio not only showcases the **technical proficiency** — from GANs to transformers to Streamlit — but also reflects my desire to **solve meaningful, domain-specific problems** that FinTech firms are actively investing in today.
+
+> 🎯 **Why this matters**: In modern FinTech workflows, the ability to generate, interpret, and act on fraud signals is crucial. This project bridges technical implementation with real decision science use cases in the field.
+
 
 ## 📁 Project Structure
 
