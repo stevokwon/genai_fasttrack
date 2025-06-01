@@ -118,7 +118,7 @@ Example reasons may include:
 
 ---
 
-## 🤖 4. LLM Inference Utilities (`huggingface_inference.py`)
+## 🤗 4. Transformer-Based LLM Tools (`transformers_llm/`)
 
 Reusable wrapper around HuggingFace Transformers for:
 
@@ -134,3 +134,28 @@ Reusable wrapper around HuggingFace Transformers for:
 git clone https://github.com/stevokwon/genai_fasttrack.git
 cd genai_fasttrack
 pip install -r requirements.txt
+```
+
+### 🧪 Run DCGAN
+
+```bash
+python genai_rl_agents/dcgan_mnist.py
+```
+
+### 🧪 Run Fraud Agent
+
+```bash
+python genai_rl_agents/fraud_risk_agent.py
+```
+
+### 🧪 Launch Streamlit Web App
+
+```bash
+streamlit run genai_rl_agents/fraud_risk_streamlit.py
+```
+
+### 🧪 Run Hugging Face Inference
+
+```bash
+python transformers_llm/huggingface_inference.py
+```
