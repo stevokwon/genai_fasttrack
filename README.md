@@ -39,8 +39,8 @@ Train a Deep Convolutional GAN to generate handwritten digits from the MNIST dat
 
 ### 📸 Sample Output (Epoch 10)
 
-![Generated Digits](assets/generated_mnist_sample.png)
-> *Digits generated after 10 epochs of DCGAN training using PyTorch*
+![Generated Digits](genai_rl_agents/output/fake_samples_epoch13_step400.png)
+> *Digits generated after 13 epochs of DCGAN training using PyTorch*
 
 ---
 
@@ -58,17 +58,63 @@ Designed for use in batch scoring, dashboards, or REST API backends.
 
 ## 🌐 3. Streamlit UI (`fraud_risk_streamlit.py`)
 
-Interactive web interface for entering or uploading transaction data and reviewing fraud assessments in real time.
+Interactive web interface for entering or uploading transaction data and reviewing fraud assessments in real time. Built with **Streamlit**, this front-end empowers real-time exploration of transaction risk factors.
 
 ### 🖼️ Home Interface
 
-![Streamlit Home](assets/streamlit_home.png)
+This is the default landing page for users to begin manual input or upload a transaction file.
+
+![Streamlit Home](assets/default_page_UI.PNG)
+
+---
 
 ### 🔍 Risk Breakdown for Sample Case
 
 > 💳 “$3200 online purchase made in Japan at 2 AM using a new iPhone by a user from Singapore with only 12 days of account age.”
 
-![Streamlit Result](assets/streamlit_result.png)
+Once evaluated, the app displays a summary of:
+- Fraud Score (`0–100`)
+- Risk Level (Low, Medium, High)
+- Action Recommendation (Approve, Investigate, Block)
+- Interpretable Reasons
+
+![Streamlit Result](assets/evaluation.PNG)
+
+---
+
+### 📊 Visualisation on Fraud Score History
+
+The app plots a real-time graph of fraud scores from past evaluations for comparison and trend monitoring. Each transaction is labeled and the score is plotted in temporal order.
+
+![Fraud Score History Visualisation](assets/show_fraud_history.PNG)
+
+---
+
+### 🧾 Keeping Records on Transaction History
+
+After each transaction is submitted, it is added to an interactive table showing:
+- Summary description
+- Assigned fraud score
+- Risk level
+
+This feature is useful for auditors, model debugging, or dashboard integration.
+
+![Transaction History](assets/show_transaction_history.PNG)
+
+---
+
+### 📖 Detailed Breakdown on the Fraud Score
+
+Each individual prediction is backed by reason codes extracted from rule-based logic and LLM-enhanced logic (if enabled). These reasons ensure interpretability of the model’s decision.
+
+Example reasons may include:
+- High amount
+- New device
+- Foreign location mismatch
+- Unusual transaction hour
+- High-risk country
+
+![Detailed Breakdown](assets/detailed_explanation.PNG)
 
 ---
 
