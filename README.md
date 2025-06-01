@@ -52,6 +52,8 @@ Train a Deep Convolutional GAN to generate handwritten digits from the MNIST dat
 ![Generated Digits](genai_rl_agents/output/fake_samples_epoch13_step400.png)
 > *Digits generated after 13 epochs of DCGAN training using PyTorch*
 
+> *Limited number of training samples considering current condition of military base with limited computing resource*
+
 ---
 
 ## 🛡️ 2. Fraud Risk Agent (`fraud_risk_agent.py`)
